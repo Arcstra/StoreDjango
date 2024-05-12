@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+</head>
+<body>
+  
+  <form action="" method="post" onsubmit="postData(); return false">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      {{ field.label_tag }} {{ field }}
+    {% endfor %}
+
+    <input type="submit" value="Register">
+  </form>
+
+  <script>
+    async function postData() {
+      form = document.querySelector("form")
+
+      let res = await fetch("/api/auth/register/", {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      if (res.ok) {
+        window.location.replace("/auth/confirmEmail/")
+      }
+      else {
+        alert("Error reg!!!")
+      }
+    }
+  </script>
+
+</body>
+</html>

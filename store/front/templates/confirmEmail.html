@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подтверждение почты</title>
+</head>
+<body>
+  
+  <form action="" method="post" onsubmit="postData(); return false">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      {{ field.label_tag }} {{ field }}
+    {% endfor %}
+
+    <input type="submit" value="Send">
+  </form>
+
+  <input type="submit" value="GetCode" onclick="getCode(); return false">
+
+  <script>
+    async function postData() {
+      form = document.querySelector("form")
+
+      let res = await fetch("/api/auth/confirmEmail/", {
+        method: "POST",
+        body: new FormData(form)
+      });
+
+      if (res.ok) {
+        window.location.replace("/main/")
+      }
+      else {
+        alert("Error!!!")
+      }
+    }
+
+    async function getCode() {
+      let get = await fetch("/api/auth/confirmEmail/", {
+        method: "GET",
+        headers: {'X-CSRFToken': csrftoken},
+      })
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+  </script>
+
+</body>
+</html>

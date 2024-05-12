@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  django:
+    build:
+      context: ./store
+      dockerfile: Dockerfile
+    container_name: django-store
+    volumes:
+      - ./store:/code/
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "
+      python manage.py makemigrations api &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+    restart: always
+  
+  redis:
+    image: redis:7.2.4-alpine3.19
+    container_name: redis-store
+    restart: always
+
+  celery:
+    build:
+      context: ./store
+      dockerfile: Dockerfile
+    container_name: celery-store
+    volumes:
+      - ./store:/code/
+    command: >
+      sh -c "celery -A store worker -l INFO"
+    depends_on:
+      - redis
+
+
+networks:
+  backend:
+    driver: bridge
